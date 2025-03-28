@@ -1,0 +1,63 @@
+name: Demo Environment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build and run demo environment
+      run: |
+        docker-compose build
+        docker-compose up -d
+    
+    - name: Wait for services to be ready
+      run: |
+        sleep 30  # Give services time to start
+    
+    - name: Test demo endpoints
+      run: |
+        # Test root endpoint
+        curl -f http://localhost:8000/ || exit 1
+        
+        # Test metrics endpoint
+        curl -f http://localhost:8000/metrics || exit 1
+        
+        # Test health endpoint
+        curl -f http://localhost:8000/health || exit 1
+    
+    - name: Check Prometheus
+      run: |
+        curl -f http://localhost:9090/-/healthy || exit 1
+    
+    - name: Check Grafana
+      run: |
+        curl -f http://localhost:3000/api/health || exit 1
+    
+    - name: Check Tempo
+      run: |
+        curl -f http://localhost:3200/ready || exit 1
+    
+    - name: Check Loki
+      run: |
+        curl -f http://localhost:3100/ready || exit 1
+    
+    - name: Show logs
+      if: always()
+      run: |
+        docker-compose logs
+    
+    - name: Clean up
+      if: always()
+      run: |
+        docker-compose down 

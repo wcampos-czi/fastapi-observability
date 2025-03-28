@@ -1,0 +1,238 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "footer": {
+          "fields": "",
+          "receiverType": "gateway",
+          "showCommonLabels": false,
+          "showFields": "",
+          "showLabels": false,
+          "showTime": false,
+          "showValues": false
+        },
+        "header": {
+          "fields": [
+            {
+              "name": "traceID",
+              "type": "string"
+            },
+            {
+              "name": "service.name",
+              "type": "string"
+            },
+            {
+              "name": "duration",
+              "type": "number",
+              "unit": "ms"
+            },
+            {
+              "name": "status.code",
+              "type": "number"
+            }
+          ],
+          "showFields": true,
+          "showTime": true,
+          "showValues": true
+        },
+        "layout": "auto",
+        "search": "{}",
+        "serviceMap": {
+          "showDependencies": true,
+          "showOperations": true,
+          "showExternal": true
+        },
+        "spanBar": {
+          "tag:http.method": {
+            "color": "#7EB26D",
+            "mappedName": "HTTP Method"
+          },
+          "tag:http.status_code": {
+            "color": "#E0E000",
+            "mappedName": "Status Code"
+          }
+        },
+        "spanName": "name",
+        "traceToLogs": {
+          "datasourceUid": "loki",
+          "spanStartTimeShift": "1m",
+          "spanEndTimeShift": "1m",
+          "filterByTraceID": false,
+          "filterBySpanID": false,
+          "tags": [
+            "service.name",
+            "name"
+          ]
+        },
+        "traceToMetrics": {
+          "datasourceUid": "prometheus",
+          "queries": [
+            {
+              "name": "Rate",
+              "query": "rate(http_requests_total{service=\"$service\"}[5m])",
+              "type": "rate"
+            },
+            {
+              "name": "Error Rate",
+              "query": "rate(http_exceptions_total{service=\"$service\"}[5m])",
+              "type": "rate"
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "query": "",
+          "queryType": "traceql",
+          "refId": "A"
+        }
+      ],
+      "title": "Service Graph",
+      "type": "traces"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 2,
+      "options": {
+        "footer": {
+          "fields": "",
+          "receiverType": "gateway",
+          "showCommonLabels": false,
+          "showFields": "",
+          "showLabels": false,
+          "showTime": false,
+          "showValues": false
+        },
+        "header": {
+          "fields": [
+            {
+              "name": "traceID",
+              "type": "string"
+            },
+            {
+              "name": "service.name",
+              "type": "string"
+            },
+            {
+              "name": "duration",
+              "type": "number",
+              "unit": "ms"
+            },
+            {
+              "name": "status.code",
+              "type": "number"
+            }
+          ],
+          "showFields": true,
+          "showTime": true,
+          "showValues": true
+        },
+        "layout": "vertical",
+        "search": "{}",
+        "serviceMap": {
+          "showDependencies": true,
+          "showOperations": true,
+          "showExternal": true
+        },
+        "spanBar": {
+          "tag:http.method": {
+            "color": "#7EB26D",
+            "mappedName": "HTTP Method"
+          },
+          "tag:http.status_code": {
+            "color": "#E0E000",
+            "mappedName": "Status Code"
+          }
+        },
+        "spanName": "name",
+        "traceToLogs": {
+          "datasourceUid": "loki",
+          "spanStartTimeShift": "1m",
+          "spanEndTimeShift": "1m",
+          "filterByTraceID": false,
+          "filterBySpanID": false,
+          "tags": [
+            "service.name",
+            "name"
+          ]
+        },
+        "traceToMetrics": {
+          "datasourceUid": "prometheus",
+          "queries": [
+            {
+              "name": "Rate",
+              "query": "rate(http_requests_total{service=\"$service\"}[5m])",
+              "type": "rate"
+            },
+            {
+              "name": "Error Rate",
+              "query": "rate(http_exceptions_total{service=\"$service\"}[5m])",
+              "type": "rate"
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "tempo"
+          },
+          "query": "",
+          "queryType": "traceql",
+          "refId": "A"
+        }
+      ],
+      "title": "Trace View",
+      "type": "traces"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "FastAPI Traces",
+  "version": 0,
+  "weekStart": ""
+} 

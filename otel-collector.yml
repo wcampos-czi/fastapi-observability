@@ -1,0 +1,34 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  attributes:
+    actions:
+      - key: "service.name"
+        action: "insert"
+        value: "fastapi-app"
+
+exporters:
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "fastapi"
+    const_labels:
+      label1: value1
+    send_timestamps: true
+    metric_relabel_configs:
+      - action: labeldrop
+        regex: ^target_info.*
+  otlp:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+  logging:
+    loglevel: debug 

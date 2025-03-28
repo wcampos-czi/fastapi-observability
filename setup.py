@@ -1,0 +1,45 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="fastapi-observability",
+    version="0.1.0",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    install_requires=[
+        "fastapi>=0.68.0",
+        "structlog>=21.1.0",
+        "prometheus-client>=0.12.0",
+        "opentelemetry-api>=1.11.0",
+        "opentelemetry-sdk>=1.11.0",
+        "opentelemetry-instrumentation-fastapi>=0.30b0",
+        "opentelemetry-exporter-otlp>=1.11.0",
+        "opentelemetry-instrumentation>=0.30b0",
+    ],
+    extras_require={
+        "dev": [
+            "pytest>=6.0",
+            "pytest-cov>=2.12.0",
+            "black>=21.7b0",
+            "isort>=5.9.3",
+            "mypy>=0.910",
+            "flake8>=3.9.2",
+        ],
+    },
+    python_requires=">=3.8",
+    author="Your Name",
+    author_email="your.email@example.com",
+    description="A FastAPI observability library with structlog, Prometheus, and OpenTelemetry integration",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/yourusername/fastapi-observability",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+    ],
+) 
