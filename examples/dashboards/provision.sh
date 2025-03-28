@@ -41,14 +41,14 @@ curl -X POST http://admin:admin@grafana:3000/api/datasources \
 # Create dashboards
 curl -X POST http://admin:admin@grafana:3000/api/dashboards/db \
   -H "Content-Type: application/json" \
-  -d @fastapi-metrics.json
+  -d "{\"dashboard\": $(cat /var/lib/grafana/dashboards/fastapi-metrics.json)}"
 
 curl -X POST http://admin:admin@grafana:3000/api/dashboards/db \
   -H "Content-Type: application/json" \
-  -d @fastapi-traces.json
+  -d "{\"dashboard\": $(cat /var/lib/grafana/dashboards/fastapi-traces.json)}"
 
 curl -X POST http://admin:admin@grafana:3000/api/dashboards/db \
   -H "Content-Type: application/json" \
-  -d @fastapi-logs.json
+  -d "{\"dashboard\": $(cat /var/lib/grafana/dashboards/fastapi-logs.json)}"
 
 echo "Grafana dashboards provisioned successfully!" 

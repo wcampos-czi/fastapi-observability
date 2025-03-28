@@ -23,12 +23,20 @@ exporters:
     const_labels:
       label1: value1
     send_timestamps: true
-    metric_relabel_configs:
-      - action: labeldrop
-        regex: ^target_info.*
   otlp:
     endpoint: tempo:4317
     tls:
       insecure: true
-  logging:
-    loglevel: debug 
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, attributes]
+      exporters: [otlp, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, debug] 

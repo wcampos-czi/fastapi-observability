@@ -1,4 +1,4 @@
-.PHONY: install test lint format clean run-demo stop-demo run-full-demo run-minimal-demo
+.PHONY: install test lint format clean run-demo stop-demo run-full-demo run-minimal-demo build demo
 
 install:
 	pip install -e ".[dev]"
@@ -56,4 +56,33 @@ tempo:
 	open http://localhost:3200
 
 loki:
-	open http://localhost:3100 
+	open http://localhost:3100
+
+# Build Docker images
+build:
+	docker-compose build
+
+# Run the demo environment
+demo: build
+	docker-compose up -d
+
+# Clean up containers and volumes
+clean:
+	docker-compose down -v
+	docker system prune -f
+
+# Install development dependencies
+install-dev:
+	pip install -e ".[dev]"
+
+# Format code
+format:
+	black .
+	isort .
+
+# Run linting
+lint:
+	flake8 .
+	mypy .
+	black . --check
+	isort . --check 
