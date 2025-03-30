@@ -6,23 +6,29 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 import structlog
-from prometheus_client import Counter, Histogram
+from prometheus_client import Counter, Histogram, generate_latest
+from fastapi.responses import PlainTextResponse
 
 class FastAPIObservability:
-    def __init__(self, app: FastAPI, app_name: str = "fastapi-app"):
+    def __init__(self, app: FastAPI, app_name: str = "fastapi-app", enable_structlog: bool = True, enable_prometheus: bool = True, enable_opentelemetry: bool = True, otlp_endpoint: str = "http://localhost:4317", excluded_endpoints: list = None):
         self.app = app
         self.app_name = app_name
-        self._setup_tracing()
-        self._setup_metrics()
-        self._setup_logging()
+        self.excluded_endpoints = excluded_endpoints or []
+        if enable_opentelemetry:
+            self._setup_tracing(otlp_endpoint)
+        if enable_prometheus:
+            self._setup_metrics()
+            self._setup_metrics_endpoint()
+        if enable_structlog:
+            self._setup_logging()
 
-    def _setup_tracing(self):
+    def _setup_tracing(self, otlp_endpoint: str):
         # Configure OpenTelemetry
         resource = Resource.create({"service.name": self.app_name})
         tracer_provider = TracerProvider(resource=resource)
         
         # Set up OTLP exporter
-        otlp_exporter = OTLPSpanExporter()
+        otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
         tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
         
         # Set the tracer provider
@@ -47,6 +53,9 @@ class FastAPIObservability:
         # Add middleware for metrics
         @self.app.middleware("http")
         async def metrics_middleware(request, call_next):
+            if request.url.path in self.excluded_endpoints:
+                return await call_next(request)
+
             import time
             start_time = time.time()
             response = await call_next(request)
@@ -64,6 +73,11 @@ class FastAPIObservability:
             ).observe(duration)
             
             return response
+
+    def _setup_metrics_endpoint(self):
+        @self.app.get("/metrics")
+        async def metrics():
+            return PlainTextResponse(generate_latest())
 
     def _setup_logging(self):
         # Configure structlog
@@ -83,6 +97,9 @@ class FastAPIObservability:
         # Add middleware for logging
         @self.app.middleware("http")
         async def logging_middleware(request, call_next):
+            if request.url.path in self.excluded_endpoints:
+                return await call_next(request)
+
             self.logger.info(
                 "request_started",
                 method=request.method,
@@ -99,4 +116,7 @@ class FastAPIObservability:
                 status_code=response.status_code
             )
             
-            return response 
+            return response
+
+    def get_logger(self):
+        return self.logger 

@@ -1,15 +1,31 @@
 version: '3.8'
 
 services:
-  app:
+  app1:
     build:
       context: .
       dockerfile: examples/Dockerfile
+    command: uvicorn examples.app1:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_SERVICE_NAME=fastapi-demo
+      - OTEL_SERVICE_NAME=app1
+    depends_on:
+      - otel-collector
+    networks:
+      - observability
+
+  app2:
+    build:
+      context: .
+      dockerfile: examples/Dockerfile
+    command: uvicorn examples.app2:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8001:8000"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=app2
     depends_on:
       - otel-collector
     networks:
@@ -17,12 +33,13 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector:latest
-    command: ["--config=/etc/otel-collector-config.yaml"]
+    command: ["--config=/etc/otelcol/config.yaml"]
     volumes:
-      - ./otel-collector.yml:/etc/otel-collector-config.yaml
+      - ./configs/otel-collector.yml:/etc/otelcol/config.yaml
     ports:
       - "4317:4317"
       - "4318:4318"
+      - "8889:8889"
     depends_on:
       - prometheus
       - tempo
@@ -33,7 +50,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     networks:
@@ -46,14 +63,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
-      - ./examples/dashboards:/var/lib/grafana/dashboards
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        /run.sh &
-        sleep 10
-        /var/lib/grafana/dashboards/provision.sh
-        wait
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
       - tempo
@@ -63,10 +73,10 @@ services:
 
   tempo:
     image: grafana/tempo:latest
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    command: [ "-config.file=/etc/tempo/tempo.yml" ]
     user: root
     volumes:
-      - ./tempo.yml:/etc/tempo.yaml
+      - ./configs/tempo.yml:/etc/tempo/tempo.yml
       - tempo_data:/tmp/tempo
     ports:
       - "3200:3200"
@@ -82,7 +92,7 @@ services:
       - "3100:3100"
       - "3111:3111"
     volumes:
-      - ./loki.yml:/etc/loki/local-config.yaml
+      - ./configs/loki.yml:/etc/loki/local-config.yml
       - loki_data:/loki
     networks:
       - observability

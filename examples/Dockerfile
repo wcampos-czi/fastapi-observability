@@ -14,10 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the library files
 COPY setup.py .
 COPY fastapi_observability fastapi_observability/
-COPY examples/feature_demo.py .
+COPY examples/ examples/
 
 # Install the library in development mode
-RUN pip install -e .
-
-# Run the application
-CMD ["uvicorn", "feature_demo:app", "--host", "0.0.0.0", "--port", "8000"] 
+RUN pip install -e . 
