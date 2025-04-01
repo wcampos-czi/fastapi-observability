@@ -15,6 +15,20 @@ processors:
       - key: "service.name"
         action: "insert"
         value: "fastapi-app"
+      - key: "trace_id"
+        action: "insert"
+        from_attribute: "trace_id"
+      - key: "span_id"
+        action: "insert"
+        from_attribute: "span_id"
+      - key: "trace_flags"
+        action: "insert"
+        from_attribute: "trace_flags"
+  resource:
+    attributes:
+      - action: insert
+        key: "app_name"
+        from_attribute: "service.name"
 
 exporters:
   prometheus:
@@ -39,4 +53,8 @@ service:
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [prometheus, debug] 
+      exporters: [prometheus, debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch, attributes, resource]
+      exporters: [debug] 
