@@ -15,6 +15,16 @@ setup(
         "opentelemetry-exporter-otlp>=1.7.1",
         "opentelemetry-instrumentation-httpx>=0.30b1"
     ],
+    extras_require={
+        "dev": [
+            "pytest>=7.0.0",
+            "pytest-cov>=4.0.0",
+            "black>=22.0.0",
+            "isort>=5.0.0",
+            "flake8>=4.0.0",
+            "mypy>=0.900",
+        ],
+    },
     python_requires=">=3.8",
     description="FastAPI observability library with OpenTelemetry, Prometheus, and structlog",
     author="Your Name",
